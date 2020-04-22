@@ -6,20 +6,12 @@
 #	["523", 0, False]
 #]
 
-#conditions = [
-#	["682",1,True],
-#	["614",1,False],
-#	["206",2,False],
-#	["738",0,False],
-#	["380",1,False]
-#]
-
 conditions = [
-	["631",1,True],
-	["730",0,False],
-	["102",2,False],
-	["678",1,False],
-	["087",1,True]
+	["682",1,True],
+	["614",1,False],
+	["206",2,False],
+	["738",0,False],
+	["380",1,False]
 ]
 
 num_digits = 3
@@ -30,8 +22,10 @@ def pad(num):
 def common(num1, num2, position):
 	coms = 0
 	num2 = list(num2)
-	for x in range(len(num1)):
-		for y in range(len(num2)):
+	if not(position) and any(num1[x] == num2[x] for x in range(len(num1))):
+		return -1
+	for x in range(len(num1)):#condition number 0071
+		for y in range(len(num2)):#number tested  4066
 			if num1[x] != num2[y]:
 				continue
 			if position and x != y:
