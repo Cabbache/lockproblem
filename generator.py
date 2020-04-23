@@ -1,26 +1,42 @@
 import random
 import copy
 
-num_digits = 3
-num_conds = [5, 8]
+#configuration
+num_digits = 4
+num_conds = [5, 9]
 num_sols = 1
+
+#set to true if conditions must have same solutions for strict = true and strict = false
+doubleP = True
+
+#makes condition logic more restricted, this affects ambiguity of problem
+strict = True
 
 def pad(num):
 	return ("0"*(num_digits - len(num))) + num
 
+def printProblem(conditions):
+	print(str(solve(conditions)) + ": " + str(conditions))
+
+def same(sol1, sol2):
+	sol1.sort()
+	sol2.sort()
+	return sol1 == sol2
+
 def common(num1, num2, position):
 	coms = 0
 	num2 = list(num2)
+
 	if not(position) and any(num1[x] == num2[x] for x in range(len(num1))):
 		return -1
-	for x in range(len(num1)):#condition number 0071
-		for y in range(len(num2)):#number tested  4066
+	for x in range(len(num1)):
+		for y in range(len(num2)):
 			if num1[x] != num2[y]:
 				continue
 			if position and x != y:
-				return -1
-			if not(position) and x == y:
-				return -1
+				if strict:
+					return -1
+				continue
 			coms += 1
 			num2[y] = "X"
 			break
@@ -54,34 +70,42 @@ def genConds():
 		conds.append(c)
 	return conds
 
-def allImp(conditions):
-	sols = []
+def removeUnecessary(conditions):
 	actual = solve(conditions)
-	actual.sort()
-	for k in range(len(conds)):
-		tests = copy.deepcopy(conds)
+	for k in range(len(conditions)):
+		tests = copy.deepcopy(conditions)
 		tests.pop(k)
 		s = solve(tests)
-		s.sort()
-		sols.append(s)
-	
-	for sol in sols:
-		print(str(sol) + " <---> " + str(actual))
-		if len(sol) != len(actual):
-			continue
-		if sol == actual:
-			return False
-	return True
 
-conds = genConds()
+		if same(solve(tests), actual):
+			return removeUnecessary(tests)
+	return conditions
 
 while True:
+	conds = genConds()
 	while len(solve(conds)) != num_sols:
 		conds = genConds()
 	
-	if not(allImp(conds)):
-		conds = genConds()
+	print("Found problem: ")
+	printProblem(conds)
+	if doubleP:
+		print("Checking for doubleP")
+		solB = solve(conds)
+		strict = not(strict)
+		areSame = same(solB, solve(conds))
+		strict = not(strict)
+		if not(areSame):
+			print("doubleP not satisfied")
+			continue
+		else:
+			print("doubleP OK")
+	
+	conds = removeUnecessary(conds)
+	if len(conds) < num_conds[0]:
+		print("has less than minimum conditions:")
+		printProblem(conds)
 		continue
 	break
 
-print(str(solve(conds)) + ": " + str(conds))
+print("All settings are satisfied:")
+printProblem(conds)
